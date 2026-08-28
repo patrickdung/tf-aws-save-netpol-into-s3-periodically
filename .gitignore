@@ -1,3 +1,6 @@
+lambda/__pycache__/
+lambda/__pycache__/*
+
 # Terraform
 .terraform/
 .terraform.lock.hcl

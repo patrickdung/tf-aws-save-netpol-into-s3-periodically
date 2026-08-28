@@ -3,8 +3,26 @@ variable "s3_bucket_name" {
   type        = string
 }
 
+variable "s3_base_folder_path" {
+  description = "Optional base folder path inside the S3 bucket, between the bucket root and the region directory. Final backup keys are {s3_base_folder_path}/{region}/netpol/{timestamp}/. Leave empty to store at the bucket root. Leading/trailing slashes are trimmed automatically."
+  type        = string
+  default     = ""
+}
+
+variable "enable_s3_eventbridge" {
+  description = "Whether the module enables EventBridge notifications on the S3 bucket (aws_s3_bucket_notification with eventbridge = true). Required for failure alerting via the .failed markers. Set to false if the bucket's notification configuration is managed elsewhere."
+  type        = bool
+  default     = true
+}
+
+variable "alert_email" {
+  description = "Optional email address to subscribe to the failure-alert SNS topic. Leave empty to create the topic without a subscription (you can subscribe later, e.g. via PagerDuty/Slack integrations)."
+  type        = string
+  default     = ""
+}
+
 variable "regions" {
-  description = "List of AWS regions to back up Security Groups and Network ACLs from. Each region's data is saved under {region}/netpol/{timestamp}/ in the S3 bucket."
+  description = "List of AWS regions to back up Security Groups and Network ACLs from. Each region's data is saved under {s3_base_folder_path}/{region}/netpol/{timestamp}/ in the S3 bucket."
   type        = list(string)
 }
 
@@ -54,6 +72,12 @@ variable "lambda_architectures" {
   description = "Instruction set architecture for the Lambda function. Valid values: [\"arm64\"] or [\"x86_64\"]. Defaults to arm64 (Graviton)."
   type        = list(string)
   default     = ["arm64"]
+}
+
+variable "lambda_log_retention_days" {
+  description = "Retention in days for the Lambda function's CloudWatch log group."
+  type        = number
+  default     = 14
 }
 
 variable "tags" {
